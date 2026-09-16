@@ -70,18 +70,8 @@
   var sub = document.getElementById("status-sub");
   var cta = document.getElementById("status-cta");
 
-  /* Safety net: if the Stripe webhook missed this payment (stale URL, etc.),
-   * trigger fulfillment directly. Idempotent — the server skips if an order
-   * already exists. */
-  function fireBackfill() {
-    try {
-      fetch(window.FreelancerOSCheckout.backfillUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token: token })
-      }).catch(function () { /* silent */ });
-    } catch (e) { /* silent */ }
-  }
+  /* The Stripe webhook is the fulfillment path. success.html polls the
+   * centralized status endpoint until the payment confirms paid. */
 
   function ready() {
     title.textContent = "Your FreelancerOS is ready 🎉";
@@ -100,8 +90,6 @@
     sub.innerHTML = 'This page needs the token from your checkout. Check your receipt email for your dashboard link — or email <a href="mailto:' + SUPPORT + '" style="color:var(--accent)">' + SUPPORT + "</a>.";
     return;
   }
-
-  fireBackfill();
 
   var attempts = 0, maxAttempts = 40; /* ~2 minutes */
   function poll() {

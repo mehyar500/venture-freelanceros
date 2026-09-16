@@ -11,7 +11,6 @@ var PRODUCT_ID = "freelanceros-os";
 /* Centralized mehyar.us billing endpoints (direct cross-origin calls). */
 var CHECKOUT_URL = "https://mehyar.us/api/pay/checkout";
 var STATUS_URL = "https://mehyar.us/api/pay/status";
-var BACKFILL_URL = "https://mehyar.us/api/pay/fulfill-backfill";
 var SUPPORT_EMAIL = "info@mehyar.us";
 
 /* ---------- helpers ---------- */
@@ -117,7 +116,6 @@ window.FreelancerOSCheckout = {
   checkoutUrl: CHECKOUT_URL,
   statusUrl: STATUS_URL,
   supportEmail: SUPPORT_EMAIL,
-  backfillUrl: BACKFILL_URL,
   openBuyModal: openBuyModal,
   wireBuyButtons: wireBuyButtons,
   esc: esc,
