@@ -111,6 +111,43 @@ function wireBuyButtons() {
 }
 
 document.addEventListener("DOMContentLoaded", wireBuyButtons);
+document.addEventListener("DOMContentLoaded", function () {
+  var form = document.getElementById("subscribe-form");
+  if (!form) return;
+  var input = document.getElementById("subscribe-email");
+  var msg = document.getElementById("subscribe-msg");
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var email = (input.value || "").trim();
+    if (!validEmail(email)) {
+      msg.textContent = "Please enter a valid email address.";
+      msg.style.color = "#f87171";
+      return;
+    }
+    msg.textContent = "Subscribing…";
+    msg.style.color = "";
+    fetch("/api/freelanceros/subscribe", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ email: email, source: "landing" })
+    }).then(function (r) { return r.json(); }).then(function (d) {
+      if (d && d.ok) {
+        msg.textContent = "You're in. Watch your inbox for new templates.";
+        msg.style.color = "#34d399";
+        input.value = "";
+      } else if (d && d.error === "unsubscribed") {
+        msg.textContent = "That address was unsubscribed. Email info@mehyar.us to rejoin.";
+        msg.style.color = "#fbbf24";
+      } else {
+        msg.textContent = "Something went wrong — please try again.";
+        msg.style.color = "#f87171";
+      }
+    }).catch(function () {
+      msg.textContent = "Something went wrong — please try again.";
+      msg.style.color = "#f87171";
+    });
+  });
+});
 
 window.FreelancerOSCheckout = {
   productId: PRODUCT_ID,

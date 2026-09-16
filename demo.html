@@ -80,6 +80,13 @@
 <script>
 (function () {
   "use strict";
+  // IP-gated demo: fail open — a gate hiccup never blocks the demo.
+  function gate() {
+    return fetch("/api/freelanceros/demo-gate", { cache: "no-store" })
+      .then(function (r) { return r.json(); })
+      .then(function (d) { return !d || d.allowed !== false; })
+      .catch(function () { return true; });
+  }
   var KEY = "freelanceros_demo_state_v1";
   function load() {
     try {
@@ -91,13 +98,29 @@
     try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) { /* private mode */ }
     return Promise.resolve(true);
   }
-  window.FreelancerOS.boot({
-    mode: "demo",
-    load: load,
-    save: save,
-    templatesLocked: true,
-    rootId: "dash-root"
-  });
+  function bootDemo() {
+    window.FreelancerOS.boot({
+      mode: "demo",
+      load: load,
+      save: save,
+      templatesLocked: true,
+      rootId: "dash-root"
+    });
+  }
+  function bootLocked() {
+    var root = document.getElementById("dash-root");
+    if (root) {
+      root.innerHTML = '<div class="centered" style="padding:48px 24px">' +
+        '<h2 class="sec-title">Demo limit reached</h2>' +
+        '<p class="lede">You\'ve had a good look around — time to make it yours. ' +
+        'Get the full FreelancerOS dashboard for $29, one time.</p>' +
+        '<button class="btn btn-primary" data-buy>Unlock for $29 →</button></div>';
+    }
+    if (window.FreelancerOSCheckout && window.FreelancerOSCheckout.wireBuyButtons) {
+      window.FreelancerOSCheckout.wireBuyButtons();
+    }
+  }
+  gate().then(function (allowed) { allowed ? bootDemo() : bootLocked(); });
 })();
 </script>
 <script>if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){})})}</script>
