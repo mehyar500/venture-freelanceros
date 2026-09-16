@@ -1,5 +1,5 @@
 -- pwa/schema.sql — FreelancerOS PWA schema + billing catalog seed.
--- Apply to the shared mehyar-jobs D1. Safe to re-run (IF NOT EXISTS / upserts).
+-- Apply to the shared mehyar_leads_prod D1. Safe to re-run (IF NOT EXISTS / upserts).
 -- NOTE: nothing in ~/workspace/repos/mehyar-web is touched by this file.
 
 -- ── orders: one row per paid FreelancerOS purchase ─────────────────────────

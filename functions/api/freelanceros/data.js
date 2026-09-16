@@ -1,6 +1,6 @@
 // functions/api/freelanceros/data.js
 // Buyer-data API for FreelancerOS. Dashboard state is stored in the shared
-// mehyar-jobs D1 (freelanceros_orders.data_json), keyed by the buyer's
+// mehyar_leads_prod D1 (freelanceros_orders.data_json), keyed by the buyer's
 // unguessable access token.
 //
 //   GET  /api/freelanceros/data?token=...   -> {ok:true, data:{...}}
