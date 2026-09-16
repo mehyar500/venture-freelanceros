@@ -8,9 +8,10 @@
 "use strict";
 
 var PRODUCT_ID = "freelanceros-os";
-/* Centralized mehyar.us billing endpoints (direct cross-origin calls). */
-var CHECKOUT_URL = "https://mehyar.us/api/pay/checkout";
-var STATUS_URL = "https://mehyar.us/api/pay/status";
+/* Same-origin proxies (functions/api/freelanceros/): forward 1:1 to the
+ * centralized mehyar.us billing endpoints. Same-origin = no CORS preflight. */
+var CHECKOUT_URL = "/api/freelanceros/checkout";
+var STATUS_URL = "/api/freelanceros/status";
 var SUPPORT_EMAIL = "info@mehyar.us";
 
 /* ---------- helpers ---------- */
