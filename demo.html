@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>FreelancerOS — free interactive demo</title>
+<meta name="description" content="Try the full FreelancerOS dashboard free with sample data: client tracker, invoice generator, content pipeline. No signup, no card.">
+<link rel="canonical" href="https://freelanceros.mehyar.us/demo.html">
+<meta name="robots" content="noindex">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="FreelancerOS">
+<meta property="og:title" content="FreelancerOS — free interactive demo">
+<meta property="og:description" content="The full dashboard with sample data. Click everything — no signup, no card.">
+<meta property="og:url" content="https://freelanceros.mehyar.us/demo.html">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#070b12">
+<link rel="stylesheet" href="styles.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="inner">
+    <a class="brand" href="index.html">Freelancer<span>OS</span></a>
+    <nav class="nav">
+      <a href="index.html#features">Features</a>
+      <a href="index.html#pricing">Pricing</a>
+      <a href="index.html#faq">FAQ</a>
+      <a class="nav-cta" href="index.html#pricing">Get it — $29</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wide">
+  <section class="dash" style="margin-top:24px">
+    <div class="demo-banner">
+      <div class="txt">
+        <strong>👀 DEMO — sample data only</strong>
+        <p>Click everything: add clients, build an invoice, move content cards. Nothing here is saved to the cloud, and the template pack stays locked until you unlock.</p>
+      </div>
+      <button class="btn btn-primary" data-buy>Unlock for $29 →</button>
+    </div>
+    <div id="dash-root"></div>
+  </section>
+</main>
+
+<footer>
+  <div class="inner">
+    <div class="footer-base">
+      <span>© 2026 FreelancerOS, by MehyarSoft LLC. One dashboard, zero subscriptions.</span>
+      <span><a href="index.html#faq">FAQ</a> · <a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a> · <a href="mailto:info@mehyar.us">Contact</a></span>
+    </div>
+  </div>
+</footer>
+
+<!-- ============ buy modal ============ -->
+<div class="modal" id="buy-modal" hidden>
+  <div class="modal-backdrop" data-close-buy></div>
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="buy-title">
+    <button class="modal-close" data-close-buy aria-label="Close">×</button>
+    <p class="eyebrow">FreelancerOS</p>
+    <h2 id="buy-title">Get your private dashboard</h2>
+    <p class="lede" style="font-size:15px">$29 one-time. Your dashboard link arrives by email right after checkout.</p>
+    <form id="buy-form" novalidate>
+      <div class="field">
+        <label for="buy-email">Email for delivery</label>
+        <input type="email" id="buy-email" placeholder="you@example.com" autocomplete="email" required>
+      </div>
+      <div class="status error" id="buy-error" role="alert"></div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary" style="flex:1">Continue to secure checkout →</button>
+      </div>
+      <p class="muted" style="font-size:13px;margin-top:12px">🔒 Checkout is handled by Stripe. We never see your card number.</p>
+    </form>
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script src="dashboard.js"></script>
+<script>
+(function () {
+  "use strict";
+  // IP-gated demo: fail open — a gate hiccup never blocks the demo.
+  function gate() {
+    return fetch("/api/freelanceros/demo-gate", { cache: "no-store" })
+      .then(function (r) { return r.json(); })
+      .then(function (d) { return !d || d.allowed !== false; })
+      .catch(function () { return true; });
+  }
+  var KEY = "freelanceros_demo_state_v1";
+  function load() {
+    try {
+      var raw = localStorage.getItem(KEY);
+      return Promise.resolve(raw ? JSON.parse(raw) : null);
+    } catch (e) { return Promise.resolve(null); }
+  }
+  function save(state) {
+    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) { /* private mode */ }
+    return Promise.resolve(true);
+  }
+  function bootDemo() {
+    window.FreelancerOS.boot({
+      mode: "demo",
+      load: load,
+      save: save,
+      templatesLocked: true,
+      rootId: "dash-root"
+    });
+  }
+  function bootLocked() {
+    var root = document.getElementById("dash-root");
+    if (root) {
+      root.innerHTML = '<div class="centered" style="padding:48px 24px">' +
+        '<h2 class="sec-title">Demo limit reached</h2>' +
+        '<p class="lede">You\'ve had a good look around — time to make it yours. ' +
+        'Get the full FreelancerOS dashboard for $29, one time.</p>' +
+        '<button class="btn btn-primary" data-buy>Unlock for $29 →</button></div>';
+    }
+    if (window.FreelancerOSCheckout && window.FreelancerOSCheckout.wireBuyButtons) {
+      window.FreelancerOSCheckout.wireBuyButtons();
+    }
+  }
+  gate().then(function (allowed) { allowed ? bootDemo() : bootLocked(); });
+})();
+</script>
+<script>if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){})})}</script>
+</body>
+</html>

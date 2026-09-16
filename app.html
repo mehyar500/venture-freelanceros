@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>FreelancerOS — your dashboard</title>
+<meta name="description" content="Your private FreelancerOS dashboard: clients, invoices, content pipeline, and templates.">
+<meta name="robots" content="noindex">
+<link rel="canonical" href="https://freelanceros.mehyar.us/app.html">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#070b12">
+<link rel="stylesheet" href="styles.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="inner">
+    <a class="brand" href="index.html">Freelancer<span>OS</span></a>
+    <nav class="nav">
+      <a href="index.html#features">Features</a>
+      <a href="index.html#pricing">Pricing</a>
+      <a class="nav-cta" href="index.html#pricing">Get it — $29</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wide">
+  <section class="dash" style="margin-top:24px">
+    <div id="dash-root"></div>
+  </section>
+</main>
+
+<footer>
+  <div class="inner">
+    <div class="footer-base">
+      <span>© 2026 FreelancerOS, by MehyarSoft LLC. One dashboard, zero subscriptions.</span>
+      <span><a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a> · <a href="mailto:info@mehyar.us">Contact</a></span>
+    </div>
+  </div>
+</footer>
+
+<!-- ============ buy modal (locked state) ============ -->
+<div class="modal" id="buy-modal" hidden>
+  <div class="modal-backdrop" data-close-buy></div>
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="buy-title">
+    <button class="modal-close" data-close-buy aria-label="Close">×</button>
+    <p class="eyebrow">FreelancerOS</p>
+    <h2 id="buy-title">Get your private dashboard</h2>
+    <p class="lede" style="font-size:15px">$29 one-time. Your dashboard link arrives by email right after checkout.</p>
+    <form id="buy-form" novalidate>
+      <div class="field">
+        <label for="buy-email">Email for delivery</label>
+        <input type="email" id="buy-email" placeholder="you@example.com" autocomplete="email" required>
+      </div>
+      <div class="status error" id="buy-error" role="alert"></div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary" style="flex:1">Continue to secure checkout →</button>
+      </div>
+      <p class="muted" style="font-size:13px;margin-top:12px">🔒 Checkout is handled by Stripe. We never see your card number.</p>
+    </form>
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script src="dashboard.js"></script>
+<script>
+/* ---- token gate ----
+ * The only way into the real dashboard: a paid access token in ?token=.
+ * Verified server-side via the centralized /api/pay/status endpoint.
+ * Unknown/short/unpaid tokens get the locked screen — never the dashboard.
+ */
+(function () {
+  "use strict";
+  var root = document.getElementById("dash-root");
+  var qs = new URLSearchParams(window.location.search);
+  var token = (qs.get("token") || "").trim();
+  var STATUS_URL = window.FreelancerOSCheckout.statusUrl;
+  var SUPPORT = window.FreelancerOSCheckout.supportEmail;
+
+  function locked(title, body) {
+    root.innerHTML =
+      '<div class="locked"><div class="big">🔒</div>' +
+      "<h1>" + title + "</h1>" +
+      '<p class="lede" style="margin:0 auto 24px">' + body + "</p>" +
+      '<div class="hero-cta"><button class="btn btn-primary" data-buy>Get FreelancerOS — $29</button> ' +
+      '<a class="btn btn-ghost" href="demo.html">Try the free demo</a></div>' +
+      '<p class="muted" style="font-size:13px;margin-top:18px">Paid already? Your link is in your receipt email. Stuck? <a href="mailto:' + SUPPORT + '" style="color:var(--accent)">' + SUPPORT + "</a></p></div>";
+    if (window.FreelancerOSCheckout && window.FreelancerOSCheckout.wireBuyButtons) {
+      window.FreelancerOSCheckout.wireBuyButtons();
+    }
+  }
+
+  function loadData() {
+    return fetch("/api/freelanceros/data?token=" + encodeURIComponent(token))
+      .then(function (r) {
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        return r.json();
+      })
+      .then(function (j) {
+        if (!j || j.ok !== true) throw new Error("bad response");
+        return j.data && typeof j.data === "object" ? j.data : null;
+      });
+  }
+  function saveData(state) {
+    return fetch("/api/freelanceros/data", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token: token, data: state })
+    }).then(function (r) {
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      return r.json();
+    }).then(function (j) {
+      if (!j || j.ok !== true) throw new Error("save rejected");
+      return true;
+    });
+  }
+
+  if (!token || token.length < 16) {
+    locked("This link isn't active.",
+      "Your FreelancerOS dashboard opens from the private link in your receipt email. If you haven't bought it yet, the demo is free to try.");
+    return;
+  }
+
+  root.innerHTML = '<div class="empty"><span class="big">⏳</span><strong>Verifying your access…</strong></div>';
+
+  fetch(STATUS_URL + "?token=" + encodeURIComponent(token))
+    .then(function (r) {
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      return r.json();
+    })
+    .then(function (j) {
+      if (j && j.paid === true) {
+        window.FreelancerOS.boot({
+          mode: "live",
+          token: token,
+          load: loadData,
+          save: saveData,
+          templatesLocked: false,
+          rootId: "dash-root"
+        });
+      } else {
+        locked("This link isn't active.",
+          "We couldn't verify a purchase for this link. If you just paid, give it a minute and refresh — or check the link in your receipt email.");
+      }
+    })
+    .catch(function () {
+      locked("We couldn't verify your access right now.",
+        "Something went wrong checking this link. Refresh to try again — or email us and we'll sort it out.");
+    });
+})();
+</script>
+<script>if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){})})}</script>
+</body>
+</html>

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>FreelancerOS — order confirmed</title>
+<meta name="robots" content="noindex">
+<link rel="canonical" href="https://freelanceros.mehyar.us/success.html">
+<meta name="description" content="Your FreelancerOS order is confirmed. Your private dashboard link is ready.">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#070b12">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="inner">
+    <a class="brand" href="index.html">Freelancer<span>OS</span></a>
+    <nav class="nav">
+      <a href="demo.html">Demo</a>
+      <a href="index.html#pricing">Pricing</a>
+      <a href="index.html#faq">FAQ</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="centered" id="status-section">
+    <div class="check">✓</div>
+    <h1 id="status-title">Setting up your dashboard…</h1>
+    <p class="lede" id="status-sub">Confirming your payment — this usually takes a few seconds.</p>
+    <div id="status-cta" style="margin-top:8px"></div>
+  </section>
+
+  <section>
+    <div class="card" style="max-width:640px;margin:0 auto">
+      <h3>What happens next</h3>
+      <ol class="steps">
+        <li><strong>Bookmark your private link</strong><p>The button above opens your dashboard with your personal access token. Keep the link somewhere safe — it's the only key to your data.</p></li>
+        <li><strong>Make it yours</strong><p>Set your business name, brand color, and currency in Settings. Add your first client.</p></li>
+        <li><strong>Check your email</strong><p>Your receipt and a backup of your dashboard link are on the way to the email you checked out with.</p></li>
+      </ol>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="inner">
+    <div class="footer-base">
+      <span>© 2026 FreelancerOS, by MehyarSoft LLC. One dashboard, zero subscriptions.</span>
+      <span><a href="index.html#faq">FAQ</a> · <a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a> · <a href="mailto:info@mehyar.us">Contact</a></span>
+    </div>
+  </div>
+</footer>
+
+<script src="app.js"></script>
+<script>
+/* ---- success: poll /api/pay/status until the payment is confirmed ----
+ * Stripe redirects here with ?token={access_token}; the webhook may still be
+ * processing, so we poll every 3s for up to ~2 minutes. Token unification
+ * (fulfillFreelanceros) means this same token opens app.html directly.
+ */
+(function () {
+  "use strict";
+  var qs = new URLSearchParams(window.location.search);
+  var token = (qs.get("token") || qs.get("access_token") || "").trim();
+  var STATUS_URL = window.FreelancerOSCheckout.statusUrl;
+  var SUPPORT = window.FreelancerOSCheckout.supportEmail;
+  var title = document.getElementById("status-title");
+  var sub = document.getElementById("status-sub");
+  var cta = document.getElementById("status-cta");
+
+  /* The Stripe webhook is the fulfillment path. success.html polls the
+   * centralized status endpoint until the payment confirms paid. */
+
+  function ready() {
+    title.textContent = "Your FreelancerOS is ready 🎉";
+    sub.textContent = "Payment confirmed. Your private dashboard is live — bookmark the link, it's the only key to your data.";
+    cta.innerHTML = '<a class="btn btn-primary" style="font-size:17px;padding:15px 34px" href="app.html?token=' +
+      encodeURIComponent(token) + '">Open my dashboard →</a>';
+  }
+  function failed() {
+    title.textContent = "We're still confirming your payment";
+    sub.innerHTML = "It's taking longer than usual. Your receipt email (with your dashboard link) will arrive once payment confirms. " +
+      'If nothing arrives in a few minutes, email <a href="mailto:' + SUPPORT + '" style="color:var(--accent)">' + SUPPORT + "</a> and we'll sort it out.";
+  }
+
+  if (!token || token.length < 16) {
+    title.textContent = "No order token found";
+    sub.innerHTML = 'This page needs the token from your checkout. Check your receipt email for your dashboard link — or email <a href="mailto:' + SUPPORT + '" style="color:var(--accent)">' + SUPPORT + "</a>.";
+    return;
+  }
+
+  var attempts = 0, maxAttempts = 40; /* ~2 minutes */
+  function poll() {
+    attempts++;
+    fetch(STATUS_URL + "?token=" + encodeURIComponent(token))
+      .then(function (r) { return r.json().catch(function () { return null; }); })
+      .then(function (j) {
+        if (j && j.paid === true) { ready(); return; }
+        if (attempts >= maxAttempts) { failed(); return; }
+        setTimeout(poll, 3000);
+      })
+      .catch(function () {
+        if (attempts >= maxAttempts) { failed(); return; }
+        setTimeout(poll, 3000);
+      });
+  }
+  poll();
+})();
+</script>
+<script>if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){})})}</script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+# FreelancerOS
+
+FreelancerOS (https://freelanceros.mehyar.us) is a one-time $29 freelancer
+operating system by MehyarSoft LLC: a token-gated web dashboard with a client
+tracker (follow-up reminders), a branded invoice generator with PDF export, a
+4-stage content pipeline board, and a downloadable template pack (freelancer
+contract, proposal template, client onboarding form).
+
+- Free interactive demo: https://freelanceros.mehyar.us/demo.html (sample data, no signup)
+- Pricing: $29 one-time, no subscription, 7-day money-back guarantee
+- Checkout: centralized Stripe checkout at https://mehyar.us/api/pay/checkout
+- Support: info@mehyar.us
