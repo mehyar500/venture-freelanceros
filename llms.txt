@@ -5,10 +5,10 @@ FreelancerOS (https://freelanceros.mehyar.us) is a one-time $29 freelancer opera
 ## Key pages
 
 - / — landing page with pricing, FAQ, and free interactive demo
-- /demo.html — free interactive demo with sample data (no signup; noindex)
-- /privacy.html — privacy policy
-- /terms.html — terms of service, including the 7-day money-back guarantee
-- /success.html — post-Stripe confirmation; issues the private dashboard link
+- /demo — free interactive demo with sample data (no signup; noindex)
+- /privacy — privacy policy
+- /terms — terms of service, including the 7-day money-back guarantee
+- /success — post-Stripe confirmation; issues the private dashboard link
 
 ## Pricing
 

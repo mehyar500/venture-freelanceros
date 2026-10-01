@@ -1,6 +1,6 @@
 User-agent: *
 Allow: /
 Disallow: /api/
-Disallow: /app.html
+Disallow: /app
 
 Sitemap: https://freelanceros.mehyar.us/sitemap.xml
