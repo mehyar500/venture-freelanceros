@@ -1,12 +1,28 @@
 # FreelancerOS
 
-FreelancerOS (https://freelanceros.mehyar.us) is a one-time $29 freelancer
-operating system by MehyarSoft LLC: a token-gated web dashboard with a client
-tracker (follow-up reminders), a branded invoice generator with PDF export, a
-4-stage content pipeline board, and a downloadable template pack (freelancer
-contract, proposal template, client onboarding form).
+FreelancerOS (https://freelanceros.mehyar.us) is a one-time $29 freelancer operating system by MehyarSoft LLC: a token-gated web dashboard with a client tracker (follow-up reminders), a branded invoice generator with PDF export, a 4-stage content pipeline board, and a downloadable template pack (freelancer contract, proposal template, client onboarding form).
 
-- Free interactive demo: https://freelanceros.mehyar.us/demo.html (sample data, no signup)
-- Pricing: $29 one-time, no subscription, 7-day money-back guarantee
-- Checkout: centralized Stripe checkout at https://mehyar.us/api/pay/checkout
-- Support: info@mehyar.us
+## Key pages
+
+- / — landing page with pricing, FAQ, and free interactive demo
+- /demo.html — free interactive demo with sample data (no signup; noindex)
+- /privacy.html — privacy policy
+- /terms.html — terms of service, including the 7-day money-back guarantee
+- /success.html — post-Stripe confirmation; issues the private dashboard link
+
+## Pricing
+
+$29 one-time via Stripe through the centralized https://mehyar.us/api/pay/checkout. No subscription, no upsells, no seat licenses. 7-day money-back guarantee.
+
+## API
+
+- POST /api/freelanceros/checkout — start a Stripe checkout session for a buyer email
+- GET /api/freelanceros/status — payment/order status lookup
+- GET /api/freelanceros/data — dashboard data, token-gated
+- POST /api/freelanceros/subscribe — dashboard data sync, token-gated
+- POST /api/freelanceros/unsubscribe — revoke dashboard access
+- GET /api/freelanceros/demo-gate — IP rate-limit gate for the free demo
+
+## Compliance
+
+Productivity software only. No income claims, no "get clients fast" or earnings promises of any kind. The contract, proposal, and onboarding templates are generic starting points, not legal or financial advice and not a substitute for professional advice. Support: info@mehyar.us.
