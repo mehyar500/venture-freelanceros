@@ -6,5 +6,10 @@
   <url><loc>https://freelanceros.mehyar.us/terms</loc><lastmod>2026-10-01</lastmod><priority>0.3</priority></url>
   <url><loc>https://freelanceros.mehyar.us/get-paid/</loc><lastmod>2026-11-22</lastmod></url>
   <url><loc>https://freelanceros.mehyar.us/holiday-gigs/</loc><lastmod>2026-11-23</lastmod></url>
+  <url>
+    <loc>https://freelanceros.mehyar.us/christmas-gig-quiz/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
   <url><loc>https://freelanceros.mehyar.us/black-friday-freelancer-deals/</loc><lastmod>2026-11-24</lastmod></url>
 </urlset>
